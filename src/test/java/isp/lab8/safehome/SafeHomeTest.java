@@ -11,7 +11,8 @@ public class SafeHomeTest {
 
     @Before
     public void instantiateDoorController() {
-        //INITIALISE CONTROLLER OBJECT HERE
+        Door door = new Door(DoorStatus.CLOSE);
+        ctrl = new DoorLockController(door);
     }
 
     // >>>> DO NOT CHANGE CODE AFTER THIS LINE ! <<<<
