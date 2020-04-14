@@ -33,18 +33,21 @@ public class DoorLockController implements ControllerInterface{
         this.attemptsNumber=0;
     }
     @Override
-    public DoorStatus enterPin(String pin) throws InvalidPinException,TooManyAttemptsException {
+    public DoorStatus enterPin(String pin) throws InvalidPinException, TooManyAttemptsException, IOException {
         if(attemptsNumber<2) {
             if (checkPin(pin, validAccess)) {
                 if (door.getStatus().equals(DoorStatus.OPEN)) {
                     door.lockDoor();
                 } else {
                     door.unlockDoor();
-                    System.out.println(door.getStatus().toString());
                 }
+                accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"No error"));
+                SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"No error"));
             } else {
                 door.lockDoor();
                 attemptsNumber++;
+                accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Invalid pin!"));
+                SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Invalid pin!"));
                 throw new InvalidPinException(pin, "Invalid pin!");
             }
         }
@@ -52,19 +55,34 @@ public class DoorLockController implements ControllerInterface{
             if (attemptsNumber == 2) {
                 if (!pin.equals(ControllerInterface.MASTER_KEY)) {
                     door.unlockDoor();
+                    accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Too many attempts! Enter master key to unlock the door"));
+                    SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Too many attempts! Enter master key to unlock the door"));
                     throw new TooManyAttemptsException(pin, "Too many attempts! Enter master key to unlock the door");
                 }
                 else{
                     if(pin.equals(ControllerInterface.MASTER_KEY)){
                         door.unlockDoor();
                         attemptsNumber=0;
+                        accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
+                        SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
                     }
                 }
             }
         }
         return door.getStatus();
     }
-
+    /**
+     * this method should return the name by pin from hash table
+     * @param pin the pin for the name
+     * @return the name from the hash table that requires to the given pin
+     */
+    public String getNameByPin(String pin){
+        for (Map.Entry<Tenant, AccessKey> map : validAccess.entrySet()){
+            if(pin.equals(map.getValue().getPin()))
+                return map.getKey().getName();
+        }
+        return null;
+    }
     /**
      * this method should verify the pin
      * @param pin the pin that is introduce by the user
@@ -95,16 +113,7 @@ public class DoorLockController implements ControllerInterface{
     public void addTenant(String pin, String name) throws TenantAlreadyExistsException, IOException {
         if (existsTenant(name, tenantList)) {
             accessLogList.add(new AccessLog(name, LocalDateTime.now(), "addTenant", door.getStatus(), "Tenant already exists in the map"));
-            try (
-                    final FileOutputStream fileOutputStream2 = new FileOutputStream("accessLog{" + timestamp.getTime() + "}.dat");
-                    final ObjectOutputStream objectOutputStream2 = new ObjectOutputStream(fileOutputStream2);
-            ) {
-                objectOutputStream2.writeObject(new AccessLog(name, LocalDateTime.now(), "addTenant", door.getStatus(), "Tenant already exists in the map"));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+           SaveToFile(new AccessLog(name, LocalDateTime.now(), "addTenant", door.getStatus(), "Tenant already exists in the map"));
             throw new TenantAlreadyExistsException(name, "Tenant already exists in the map");
         } else {
             tenantList.add(new Tenant(name));
@@ -112,16 +121,7 @@ public class DoorLockController implements ControllerInterface{
             validAccess.put(new Tenant(name), new AccessKey(pin));
 
             accessLogList.add(new AccessLog(name, LocalDateTime.now(), "AddTenant", door.getStatus(), "No error"));
-            try (
-                    final FileOutputStream fileOutputStream2 = new FileOutputStream("accessLog{" + timestamp.getTime() + "}.dat");
-                    final ObjectOutputStream objectOutputStream2 = new ObjectOutputStream(fileOutputStream2);
-            ) {
-                objectOutputStream2.writeObject(new AccessLog(name, LocalDateTime.now(), "AddTenant", door.getStatus(), "No error"));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IIOException e) {
-                e.printStackTrace();
-            }
+           SaveToFile(new AccessLog(name, LocalDateTime.now(), "AddTenant", door.getStatus(), "No error"));
         }
     }
 
@@ -132,34 +132,12 @@ public class DoorLockController implements ControllerInterface{
             tenantList.removeIf(t -> t.getName().equals(name));
             door.unlockDoor();
             accessLogList.add(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"no error"));
-            try(
-                    final FileOutputStream fileOutputStream1 = new FileOutputStream("accessLog{"+ timestamp.getTime() +"}.dat");
-                    final ObjectOutputStream objectOutputStream1 = new ObjectOutputStream(fileOutputStream1);
-            ){
-                objectOutputStream1.writeObject(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"no error"));
-            }
-            catch (FileNotFoundException e){
-                e.printStackTrace();
-            }
-            catch (IIOException e){
-                e.printStackTrace();
-            }
+           SaveToFile(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"no error"));
         }
         else{
             door.lockDoor();
             accessLogList.add(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"Tenant not found"));
-            try(
-                    final FileOutputStream fileOutputStream1 = new FileOutputStream("accessLog{"+ timestamp.getTime() +"}.dat");
-                    final ObjectOutputStream objectOutputStream1 = new ObjectOutputStream(fileOutputStream1);
-            ){
-                objectOutputStream1.writeObject(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"Tenant not found"));
-            }
-            catch (FileNotFoundException e){
-                e.printStackTrace();
-            }
-            catch (IIOException e){
-                e.printStackTrace();
-            }
+            SaveToFile(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"Tenant not found"));
             throw new TenantNotFoundException(name,"Tenant not found");
         }
     }
@@ -179,4 +157,18 @@ public class DoorLockController implements ControllerInterface{
                 '}';
     }
 
+    public void SaveToFile(AccessLog accessLog) throws IOException {
+        try(
+                final FileOutputStream fileOutputStream1 = new FileOutputStream("accessLog{"+ timestamp.getTime() +"}.dat");
+                final ObjectOutputStream objectOutputStream1 = new ObjectOutputStream(fileOutputStream1);
+        ){
+            objectOutputStream1.writeObject(accessLog);
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        catch (IIOException e){
+            e.printStackTrace();
+        }
+    }
 }
