@@ -11,5 +11,6 @@ public class SafeHome {
         dr1.addTenant("125","a");
         dr1.removeTenant("User1");
         dr1.enterPin("124");
+        dr1.getLogs();
     }
 }

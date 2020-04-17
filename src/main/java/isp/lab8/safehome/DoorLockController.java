@@ -42,12 +42,12 @@ public class DoorLockController implements ControllerInterface{
                     door.unlockDoor();
                 }
                 accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"No error"));
-                SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"No error"));
+                saveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"No error"));
             } else {
                 door.lockDoor();
                 attemptsNumber++;
                 accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Invalid pin!"));
-                SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Invalid pin!"));
+                saveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Invalid pin!"));
                 throw new InvalidPinException(pin, "Invalid pin!");
             }
         }
@@ -56,14 +56,14 @@ public class DoorLockController implements ControllerInterface{
                 if (!pin.equals(ControllerInterface.MASTER_KEY)) {
                     door.unlockDoor();
                     accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Too many attempts! Enter master key to unlock the door"));
-                    SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Too many attempts! Enter master key to unlock the door"));
+                    saveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Too many attempts! Enter master key to unlock the door"));
                     throw new TooManyAttemptsException(pin, "Too many attempts! Enter master key to unlock the door");
                 }
                 else{
                     door.unlockDoor();
                     attemptsNumber=0;
                     accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
-                    SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
+                    saveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
                 }
             }
         }
@@ -111,7 +111,7 @@ public class DoorLockController implements ControllerInterface{
     public void addTenant(String pin, String name) throws TenantAlreadyExistsException, IOException {
         if (existsTenant(name, tenantList)) {
             accessLogList.add(new AccessLog(name, LocalDateTime.now(), "addTenant", door.getStatus(), "Tenant already exists in the map"));
-           SaveToFile(new AccessLog(name, LocalDateTime.now(), "addTenant", door.getStatus(), "Tenant already exists in the map"));
+           saveToFile(new AccessLog(name, LocalDateTime.now(), "addTenant", door.getStatus(), "Tenant already exists in the map"));
             throw new TenantAlreadyExistsException(name, "Tenant already exists in the map");
         } else {
             tenantList.add(new Tenant(name));
@@ -119,7 +119,7 @@ public class DoorLockController implements ControllerInterface{
             validAccess.put(new Tenant(name), new AccessKey(pin));
 
             accessLogList.add(new AccessLog(name, LocalDateTime.now(), "AddTenant", door.getStatus(), "No error"));
-           SaveToFile(new AccessLog(name, LocalDateTime.now(), "AddTenant", door.getStatus(), "No error"));
+           saveToFile(new AccessLog(name, LocalDateTime.now(), "AddTenant", door.getStatus(), "No error"));
         }
     }
 
@@ -130,12 +130,12 @@ public class DoorLockController implements ControllerInterface{
             tenantList.removeIf(t -> t.getName().equals(name));
             door.unlockDoor();
             accessLogList.add(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"no error"));
-           SaveToFile(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"no error"));
+           saveToFile(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"no error"));
         }
         else{
             door.lockDoor();
             accessLogList.add(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"Tenant not found"));
-            SaveToFile(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"Tenant not found"));
+            saveToFile(new AccessLog(name,LocalDateTime.now(),"removeTenant",door.getStatus(),"Tenant not found"));
             throw new TenantNotFoundException(name,"Tenant not found");
         }
     }
@@ -161,7 +161,7 @@ public class DoorLockController implements ControllerInterface{
      * @param accessLog the object that has to be saved in the file
      * @throws IOException throws exception if the file can not be created or the object is no serializable
      */
-    public void SaveToFile(AccessLog accessLog) throws IOException {
+    public void saveToFile(AccessLog accessLog) throws IOException {
         try(
                 final FileOutputStream fileOutputStream1 = new FileOutputStream("accessLog{"+ timestamp.getTime() +"}.dat");
                 final ObjectOutputStream objectOutputStream1 = new ObjectOutputStream(fileOutputStream1);
@@ -174,5 +174,10 @@ public class DoorLockController implements ControllerInterface{
         catch (IIOException e){
             e.printStackTrace();
         }
+    }
+    public void getLogs(){
+        AccessLogDisplay accessLogDisplay = new AccessLogDisplay();
+        accessLogDisplay.readFile();
+        accessLogDisplay.displayAccessLogList();
     }
 }
