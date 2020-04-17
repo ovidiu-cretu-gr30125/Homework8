@@ -175,6 +175,10 @@ public class DoorLockController implements ControllerInterface{
             e.printStackTrace();
         }
     }
+
+    /**
+     * get logs from the files
+     */
     public void getLogs(){
         AccessLogDisplay accessLogDisplay = new AccessLogDisplay();
         accessLogDisplay.readFile();

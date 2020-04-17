@@ -12,6 +12,11 @@ public class AccessLogDisplay {
 
     public int i=0;
 
+    /**
+     * put all the files in the array that have the .dat extension
+     * @param directory the path to the files
+     * @return the list of the files
+     */
     public List<String> textFiles(String directory) {
         File dir = new File(directory);
         for (File file : dir.listFiles()) {
@@ -21,6 +26,10 @@ public class AccessLogDisplay {
         }
         return textFiles;
     }
+
+    /**
+     * deserializable the files
+     */
     public void readFile() {
         textFiles("C:\\Users\\cretu\\iCloudDrive\\Desktop\\ISP\\lab-8-isp-ovidiu-cretu-gr30125");
         int n = textFiles.size();
@@ -39,6 +48,10 @@ public class AccessLogDisplay {
             }
         }
     }
+
+    /**
+     * display the logs from the accessLog list
+     */
     public void displayAccessLogList(){
         System.out.println(accessLogList.toString());
     }

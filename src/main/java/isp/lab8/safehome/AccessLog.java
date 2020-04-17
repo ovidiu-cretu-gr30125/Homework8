@@ -23,7 +23,7 @@ public class AccessLog implements Serializable {
     }
     @Override
     public String toString() {
-        return "AccessLog{" +
+        return "\nAccessLog{" +
                 "tenantName='" + tenantName + '\'' +
                 ", dateTime=" + dateTime +
                 ", operation='" + operation + '\'' +
