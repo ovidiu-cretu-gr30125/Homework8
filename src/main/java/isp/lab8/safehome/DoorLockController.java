@@ -25,7 +25,7 @@ public class DoorLockController implements ControllerInterface{
 
     public int attemptsNumber;
 
-    private Timestamp timestamp = new Timestamp(100);
+    private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
     public DoorLockController(Door door){
         this.door=door;
@@ -60,12 +60,10 @@ public class DoorLockController implements ControllerInterface{
                     throw new TooManyAttemptsException(pin, "Too many attempts! Enter master key to unlock the door");
                 }
                 else{
-                    if(pin.equals(ControllerInterface.MASTER_KEY)){
-                        door.unlockDoor();
-                        attemptsNumber=0;
-                        accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
-                        SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
-                    }
+                    door.unlockDoor();
+                    attemptsNumber=0;
+                    accessLogList.add(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
+                    SaveToFile(new AccessLog(getNameByPin(pin),LocalDateTime.now(),"EnterPin",door.getStatus(),"Master key used"));
                 }
             }
         }
@@ -157,6 +155,12 @@ public class DoorLockController implements ControllerInterface{
                 '}';
     }
 
+    /**
+     *
+     * this method save to a new file all the access logs one by one in a different file
+     * @param accessLog the object that has to be saved in the file
+     * @throws IOException throws exception if the file can not be created or the object is no serializable
+     */
     public void SaveToFile(AccessLog accessLog) throws IOException {
         try(
                 final FileOutputStream fileOutputStream1 = new FileOutputStream("accessLog{"+ timestamp.getTime() +"}.dat");
