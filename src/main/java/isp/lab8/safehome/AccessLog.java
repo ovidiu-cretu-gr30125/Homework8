@@ -29,6 +29,6 @@ public class AccessLog implements Serializable {
                 ", operation='" + operation + '\'' +
                 ", doorStatus=" + doorStatus +
                 ", errorMessage='" + errorMessage + '\'' +
-                '}';
+                "}";
     }
 }

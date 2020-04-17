@@ -1,22 +1,42 @@
 package isp.lab8.safehome;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AccessLogDisplay {
     List<AccessLog> accessLogList = new ArrayList<AccessLog>();
+
+    List<String> textFiles = new ArrayList<>();
+
+    public int i=0;
+
+    public List<String> textFiles(String directory) {
+        File dir = new File(directory);
+        for (File file : dir.listFiles()) {
+            if (file.getName().endsWith((".dat"))) {
+                textFiles.add(file.getName());
+            }
+        }
+        return textFiles;
+    }
     public void readFile() {
-        try (
-                final FileInputStream fileInputStream = new FileInputStream("accessLog{1587149882920}.dat");
-                final ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-        ) {
-            final AccessLog accessLog = (AccessLog)objectInputStream.readObject();
-            accessLogList.add(accessLog);
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (ClassNotFoundException e){
-            e.printStackTrace();
+        textFiles("C:\\Users\\cretu\\iCloudDrive\\Desktop\\ISP\\lab-8-isp-ovidiu-cretu-gr30125");
+        int n = textFiles.size();
+        while(i<n) {
+            try (
+                    final FileInputStream fileInputStream = new FileInputStream(textFiles.get(i));
+                    final ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            ) {
+                final AccessLog accessLog = (AccessLog) objectInputStream.readObject();
+                accessLogList.add(accessLog);
+                i++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
     public void displayAccessLogList(){
