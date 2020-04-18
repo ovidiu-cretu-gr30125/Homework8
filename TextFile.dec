@@ -1,0 +1,110 @@
+%% b-raspuns la impuls
+Hb=tf(1,[1 2 0]);
+t=0:0.5:15;
+[h,t]=impulse(Hb);
+h1=1/2*(1-exp(-2*t));
+plot(t,h1);
+hold on
+plot(t,h,'*r');
+%% b-raspuns la treapta
+[y,t]=step(Hb);
+y1=-1/4+1/2*t+1/4*exp(-2*t);
+figure
+plot(t,y);
+hold on
+plot(t,y1,'*r');
+%% b-raspund la rampa
+yv=lsim(H,t,t);
+yv1=1/8-1/4*t+1/4*(t.^2)-1/8*exp(-2*t);
+figure
+plot(t,yv);
+hold on
+plot(t,yv1,'*r');
+%% c-raspuns la impuls
+Hc=tf([40 40],[1 10]);
+[h,t]=impulse(Hc);
+h1=40*(dirac(t)-9*exp(-10*t));
+figure
+plot(t,h);
+hold on
+plot(t,h1,'*r');
+%% c-raspuns la treapta
+[y,t]=step(Hc);
+y1=4*(1+9*exp(-10*t));
+figure
+plot(t,y);
+hold on
+plot(t,y1,'*r');
+%% c-raspuns la rampa
+yv=lsim(Hc,t,t);
+yv1=3.6+4*t-3.6*exp(-10*t);
+figure
+plot(t,yv);
+hold on
+plot(t,yv1,'*r');
+%% d-raspuns la impuls
+Hd=tf(3,[1 3 2]);
+[h,t]=impulse(Hd);
+h1=3*(exp(-t)-exp(-2*t));
+figure
+plot(t,h);
+hold on
+plot(t,h1,'*r');
+%% d-raspuns la treapta
+[y,t]=step(Hd);
+y1=3/2-3*exp(-t)+3/2*exp(-2*t);
+figure
+plot(t,y);
+hold on
+plot(t,y1,'*r');
+%% d-raspuns la rampa
+yv=lsim(Hd,t,t);
+yv1=3*(-3/4+1/2*t+exp(-t)-1/4*exp(-2*t));
+figure
+plot(t,yv);
+hold on
+plot(t,yv1,'*r');
+%% f-raspuns la impuls
+Hf=tf(1,[1 1 1]);
+[h,t]=impulse(Hf);
+h1=((2*sqrt(3))/3).*sin(sqrt(3)/2*t).*exp(-1/2*t);
+figure
+plot(t,h);
+hold on
+plot(t,h1,'*r');
+%% f-raspuns la treapta
+[y,t]=step(Hf);
+y1=1-cos((sqrt(3)/2)*t).*exp(-1/2*t)-(sqrt(3)/3).*sin((sqrt(3)/2)*t).*exp(-1/2*t);
+figure
+plot(t,y);
+hold on
+plot(t,y1,'*r');
+%% f-raspuns la rampa
+yv=lsim(Hf,t,t);
+yv1=-1+t+cos((sqrt((3)/2)*t).*exp(-1/2*t)-(sqrt(3)/3).*sin((sqrt(3)/2)*t)).*exp(-1/2*t);
+figure
+plot(t,yv);
+hold on
+plot(t,yv1,'*r');
+%% g-raspuns la impuls
+Hg=tf([1 1],[1 0 1]);
+[h,t]=impulse(Hg);
+h1=cos(t)+sin(t);
+figure
+plot(t,h);
+hold on
+plot(t,h1,'*r');
+%% g-raspuns la treapta
+[y,t]=step(Hg);
+y1=1-cos(t)+sin(t);
+figure
+plot(t,y);
+hold on
+plot(t,y,'*r');
+%% g-raspuns la rampa
+[yv,t]=lsim(Hg,t,t);
+yv1=1+t-cos(t)-sin(t);
+figure
+plot(t,yv);
+hold on
+plot(t,yv1,'*r');
