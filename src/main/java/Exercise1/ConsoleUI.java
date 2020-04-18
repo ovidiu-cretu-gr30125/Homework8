@@ -13,6 +13,17 @@ public class ConsoleUI {
             if(UI(scanner.next(),scanner)) return ;
         }
     }
+
+    /**
+     * this it a user interface with three options:
+     * #encrypt# that is going to encrypt the file
+     * #decrypt# that is going to decrypt the file
+     * #exit# to exit the program
+     * @param action the action use in switch case to choose between encryption, decryption or exit
+     * @param scanner the action introduce by the user
+     * @return true of the exit option is introduced or false if other options are introduced
+     * @throws CryptoException throws if the file is missing or the action fails
+     */
     private static boolean UI(String action, Scanner scanner) throws CryptoException {
         DoCrypt doCrypt = new DoCrypt();
         switch (action) {

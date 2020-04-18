@@ -4,6 +4,12 @@ import javax.imageio.IIOException;
 import java.io.*;
 
 public class DoCrypt {
+    /**
+     * this method should encrypt the content of the text file by shifting the ascii code of each character left with one position
+     * @param inputFile the file that has to be encrypted
+     * @param outputFile the encrypted file
+     * @throws CryptoException throws exception if the file can not be found or if the encryption process fails
+     */
     public void encryptFile(File inputFile, File outputFile) throws CryptoException {
         try {
             FileInputStream fileInputStream = new FileInputStream(inputFile);
@@ -21,6 +27,13 @@ public class DoCrypt {
             throw  new CryptoException("Error in encrypting or decrypting file!",ex);
         }
     }
+
+    /**
+     * this method should decrypt the encrypted text from the file by shifting right whit one position
+     * @param inputFile the encrypted file that has to be decrypted
+     * @param outputFile the decrypted file
+     * @throws CryptoException throws exception if the file is missing or the decryption fails
+     */
     public void decryptFile(File inputFile,File outputFile) throws CryptoException{
         try {
             FileInputStream fileInputStream = new FileInputStream(inputFile);
